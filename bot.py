@@ -60,10 +60,13 @@ class MyClient(discord.Client):
         if (link.hostname == "twitter.com" or link.hostname == "x.com") and link.query == "s=20":
             return link._replace(netloc='vxtwitter.com').geturl()
         
-        elif (link.hostname == "tiktok.com" or link.hostname == "www.tiktok.com"):
+        #elif (link.hostname == "tiktok.com" or link.hostname == "www.tiktok.com"):
+        #    return link._replace(netloc='vxtiktok.com').geturl()
+
+        elif re.search(r"tiktok\.com", link.hostname) != None:
             return link._replace(netloc='vxtiktok.com').geturl()
         
-        elif (link.hostname == "instagram.com" or link.hostname == "www.instagram.com"):
+        elif re.search(r"instagram\.com", link.hostname) != None:
             return link._replace(netloc='ddinstagram.com').geturl()
         
         else:
