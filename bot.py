@@ -62,7 +62,7 @@ class MyClient(discord.Client):
 
         #Detecting if the tiktok link is shortened.
         #If the link is shortened, obtain the unshortened URL.
-        elif re.search(r"tiktok\.com", link.hostname) != None:
+        elif (re.search(r"tiktok\.com", link.hostname) != None) and not (re.search(r"vxtiktok\.com", link.hostname) != None):
             if ("@" in link.path):
                 return link._replace(netloc='vxtiktok.com').geturl()
             else:
@@ -70,7 +70,7 @@ class MyClient(discord.Client):
                 link = urlparse(expanded.headers['location'])
                 return link._replace(netloc='vxtiktok.com').geturl()
         
-        elif re.search(r"instagram\.com", link.hostname) != None:
+        elif (re.search(r"instagram\.com", link.hostname) != None) and not (re.search(r"ddinstagram\.com", link.hostname) != None):
             return link._replace(netloc='ddinstagram.com').geturl()
         
         else:
