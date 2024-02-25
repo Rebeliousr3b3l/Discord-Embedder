@@ -4,7 +4,7 @@ import discord
 import asyncio
 import os
 import re
-from datetime import datetime
+import requests
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 
@@ -59,12 +59,16 @@ class MyClient(discord.Client):
         link = urlparse(url)
         if (link.hostname == "twitter.com" or link.hostname == "x.com") and link.query == "s=20":
             return link._replace(netloc='vxtwitter.com').geturl()
-        
-        #elif (link.hostname == "tiktok.com" or link.hostname == "www.tiktok.com"):
-        #    return link._replace(netloc='vxtiktok.com').geturl()
 
+        #Detecting if the tiktok link is shortened.
+        #If the link is shortened, obtain the unshortened URL.
         elif re.search(r"tiktok\.com", link.hostname) != None:
-            return link._replace(netloc='vxtiktok.com').geturl()
+            if ("@" in link.path):
+                return link._replace(netloc='vxtiktok.com').geturl()
+            else:
+                expanded = requests.get(url, allow_redirects=False)
+                link = urlparse(expanded.headers['location'])
+                return link._replace(netloc='vxtiktok.com').geturl()
         
         elif re.search(r"instagram\.com", link.hostname) != None:
             return link._replace(netloc='ddinstagram.com').geturl()
