@@ -57,7 +57,8 @@ class MyClient(discord.Client):
     # with vxtwitter. Returns False if not a twitter link.
     def handle_url(self, url):
         link = urlparse(url)
-        if (link.hostname == "twitter.com" or link.hostname == "x.com") and link.query == "s=20":
+        if (link.hostname == "twitter.com" or link.hostname == "x.com") and ((re.search(r"s=46", link.query) != None) or (re.search
+        ("s=20", link.query) != None)):
             return link._replace(netloc='vxtwitter.com').geturl()
 
         #Detecting if the tiktok link is shortened.
