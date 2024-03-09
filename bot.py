@@ -59,7 +59,7 @@ class MyClient(discord.Client):
         link = urlparse(url)
         if (link.hostname == "twitter.com" or link.hostname == "x.com") and ((re.search(r"s=46", link.query) != None) or (re.search
         ("s=20", link.query) != None)):
-            return link._replace(netloc='vxtwitter.com').geturl()
+            return link._replace(netloc='d.fxtwitter.com').geturl()
 
         #Detecting if the tiktok link is shortened.
         #If the link is shortened, obtain the unshortened URL.
@@ -73,6 +73,9 @@ class MyClient(discord.Client):
         
         elif (re.search(r"instagram\.com", link.hostname) != None) and not (re.search(r"ddinstagram\.com", link.hostname) != None):
             return link._replace(netloc='ddinstagram.com').geturl()
+        
+        elif (re.search(r"reddit\.com", link.hostname) != None):
+            return "https://embed.works/" + link.geturl()
         
         else:
             return False
