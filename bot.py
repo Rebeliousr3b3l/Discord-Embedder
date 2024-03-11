@@ -42,6 +42,8 @@ class MyClient(discord.Client):
         matches = re.findall(regex, message.content)
         replacements = []
         for match in matches:
+            if len(replacements) == 5:
+                break
             url = self.handle_url(match)
             if url:
                 replacements.append(url)
@@ -49,7 +51,7 @@ class MyClient(discord.Client):
         # only send messages if there were matches
         if len(replacements) > 0:
             # join the urls together by newlines
-            await message.reply(content = "\n".join(replacements))
+            await message.reply(content = "\n".join(replacements), mention_author=False)
             await asyncio.sleep(4)
             await message.edit(suppress=True)
     
