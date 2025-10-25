@@ -14,6 +14,8 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 # https://stackoverflow.com/a/840110
 regex=r"(?P<url>https?://[^\s]+)"
 
+#Set to True if one of the links is a Facebook link.
+facebook = False
 
 class MyClient(discord.Client):
     #def __init__(self, con):
@@ -51,42 +53,57 @@ class MyClient(discord.Client):
         # only send messages if there were matches
         if len(replacements) > 0:
             # join the urls together by newlines
-            await message.reply(content = "\n".join(replacements), mention_author=False)
-            await asyncio.sleep(4)
-            await message.edit(suppress=True)
+            if facebook:
+                await message.reply(content = "Mitigated FB's tracking. *Squeak!*\n" + "\n".join(replacements), mention_author=False, suppress_embeds=True)
+                await message.delete()
+            else:
+                await message.reply(content = "\n".join(replacements), mention_author=False)
+                await message.add_reaction('🦦')
+                await asyncio.sleep(4)
+                await message.edit(suppress=True)
     
     # if url contains a twitter link, replace the hostname
     # with vxtwitter. Returns False if not a twitter link.
     def handle_url(self, url):
         link = urlparse(url)
-        if (link.hostname == "twitter.com" or link.hostname == "x.com") and ((re.search(r"s=46", link.query) != None) or (re.search
-        ("s=20", link.query) != None)):
-            return link._replace(netloc='d.fxtwitter.com').geturl()
 
-        #Detecting if the tiktok link is shortened.
-        #If the link is shortened, obtain the unshortened URL.
-        elif (re.search(r"tiktok\.com", link.hostname) != None) and not (re.search(r"vxtiktok\.com", link.hostname) != None):
-            if ("@" in link.path):
-                return link._replace(netloc='vxtiktok.com').geturl()
-            else:
-                expanded = requests.get(url, allow_redirects=False)
-                link = urlparse(expanded.headers['location'])
-                return link._replace(netloc='vxtiktok.com').geturl()
-        
-        elif (re.search(r"instagram\.com", link.hostname) != None) and not (re.search(r"ddinstagram\.com", link.hostname) != None):
-            return link._replace(netloc='ddinstagram.com').geturl()
-        
-        elif (re.search(r"reddit\.com", link.hostname) != None):
-            return "https://embed.works/" + link.geturl()
-        
-        else:
-            return False
+        match link.hostname:
+            case "www.x.com":
+                return link._replace(netloc='fxtwitter.com').geturl()
+            
+            case "www.tiktok.com":
+                if ("@" in link.path):
+                    return link._replace(netloc='vxtiktok.com').geturl()
+                else:
+                    expanded = requests.get(url, allow_redirects=False)
+                    link = urlparse(expanded.headers['location'])
+                    return link._replace(netloc='vxtiktok.com').geturl()
+                
+            case "www.instagram.com":
+                if (re.search("reels", link.path) != None):
+                    return link._replace(netloc='kkinstagram.com').geturl()
+                else:
+                    return False
+            
+            case "www.reddit.com":
+                return link._replace(netloc="rxddit.com").geturl()
+            
+            case "www.facebook.com":
+                if (re.search("share", link.path) != None):
+                    expanded = requests.get(url, allow_redirects=False)
+                    link = urlparse(expanded.headers['location'])
+                    global facebook
+                    facebook = True
+                    return link._replace(query="").geturl()
+                else:
+                    return False
+            
+            case _:
+                print("Hit")
+                return False
 
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = MyClient(intents=intents)
 client.run(TOKEN)
-
-
-
