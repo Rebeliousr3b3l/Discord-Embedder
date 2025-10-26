@@ -27,6 +27,7 @@ class MyClient(discord.Client):
         print(f'Logged on as {self.user}')
     
     async def on_message(self, message):
+        global facebook
         #don't send message if it's from the bot
         if self.user.id == message.author.id:
             return
@@ -56,6 +57,7 @@ class MyClient(discord.Client):
             if facebook:
                 await message.reply(content = "Mitigated FB's tracking. *Squeak!*\n" + "\n".join(replacements), mention_author=False, suppress_embeds=True)
                 await message.delete()
+                facebook = False
             else:
                 await message.reply(content = "\n".join(replacements), mention_author=False)
                 await message.add_reaction('🦦')
